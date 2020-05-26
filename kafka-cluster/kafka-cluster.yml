@@ -1,0 +1,88 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: Kafka
+metadata:
+  name: kafka-cluster
+  namespace: kafka
+spec:
+  kafka:
+    version: 2.5.0
+    replicas: 3
+    listeners:
+      plain: {}
+      tls: {}
+    config:
+      default.replication.factor: 3
+      log.retention.hours: 168
+      log.segment.bytes: 1073741824
+      log.retention.check.interval.ms: 300000
+      offsets.topic.replication.factor: 3
+      auto.offset.reset: earliest
+      transaction.state.log.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      log.message.format.version: "2.2"
+    storage:
+      type: persistent-claim
+      size: 100Gi
+      deleteClaim: false
+    
+    metrics: {}
+    
+    resources:
+      requests:
+        cpu: 1
+        memory: 2Gi
+      limits:
+        cpu: 1.5
+        memory: 4Gi
+
+    template:
+      pod:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                    -  kafka-cluster-kafka
+                topologyKey: kubernetes.io/hostname
+              weight: 20
+
+
+  zookeeper:
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 50Gi
+      deleteClaim: false
+    metrics: {}
+
+    resources:
+      requests:
+        cpu: 1
+        memory: 4Gi
+      limits:
+        cpu: 1.5
+        memory: 6Gi
+
+    template:      
+      pod:
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                    -  kafka-cluster-zookeeper
+                topologyKey: kubernetes.io/hostname
+              weight: 20
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+
+  cruiseControl: {}

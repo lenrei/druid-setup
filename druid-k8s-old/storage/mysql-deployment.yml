@@ -1,0 +1,92 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: druid-mysql
+  namespace: druid
+  labels:
+    app: druid-mysql
+spec:
+  template:
+    metadata:
+      labels:
+        app: druid-mysql
+    spec:
+      initContainers:
+      - name: "remove-lost-found"
+        image: "busybox:1.25.0"
+        imagePullPolicy: "IfNotPresent"
+        command:  ["rm", "-fr", "/var/lib/mysql/lost+found"]
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+      # - name: do-something
+      #   image: busybox
+      #   command: ['do', 'something']
+      
+      containers:
+      - name: druid-mysql
+        image: "mysql:5.7.14"
+        imagePullPolicy: "IfNotPresent"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: druid-mysql
+              key: mysql-root-password
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: druid-mysql
+              key: mysql-password
+        - name: MYSQL_USER
+          value: "druid"
+        - name: MYSQL_DATABASE
+          value: "druid"
+        ports:
+        - name: mysql
+          containerPort: 3306
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "mysqladmin ping -u root -p${MYSQL_ROOT_PASSWORD}"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - "mysqladmin ping -u root -p${MYSQL_ROOT_PASSWORD}"
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 1
+          successThreshold: 1
+          failureThreshold: 3
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/mysql
+        - name: configurations
+          mountPath: /etc/mysql/conf.d
+        # - name: extras
+        #   mountPath: /usr/share/extras
+        #   readOnly: true
+        
+      volumes:
+      - name: configurations
+        configMap:
+          name: druid-mysql-configuration
+      - name: data
+        persistentVolumeClaim:
+          claimName: druid-mysql
+      # - name: extras
+      #   emptyDir: {}

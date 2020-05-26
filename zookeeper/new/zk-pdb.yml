@@ -1,0 +1,11 @@
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: druid-zookeeper-pdb
+  namespace: druid
+spec:
+  selector:
+    matchLabels:
+      app: zookeeper
+      component: server
+  maxUnavailable: 1

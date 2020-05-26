@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-overlord
+  namespace: druid
+  labels:
+    app: druid
+    component: overlord
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid
+      component: overlord
+  template:
+    metadata:
+      labels:
+        app: druid
+        component: overlord 
+    spec:
+      containers:
+        - name: druid
+          image: "apache/druid:0.17.0"
+          imagePullPolicy: IfNotPresent
+          args: [ "overlord" ]
+          env:
+          - name: druid_zk_service_host
+            value: druid-zookeeper-headless
+          - name: DB_HOST
+            value: druid-mysql
+          - name: DB_TYPE
+            value: mysql
+          - name: DB_USERNAME
+            value: druid
+          - name: DB_PASSWORD
+            value: druid
+          - name: DB_DBNAME
+            value: druid
+          - name: DB_PORT
+            value: "3306"
+          - name: JAVA_OPTS
+            value: -Xms1G -Xmx1G
+          - name: DRUID_USE_CONTAINER_IP
+            value: "true"
+          ports:
+            - name: http
+              containerPort: 8090
+              protocol: TCP
+          resources:
+            {}

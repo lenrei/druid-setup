@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-router
+  namespace: druid
+  labels:
+    app: druid
+    component: router
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid
+      component: router
+  template:
+    metadata:
+      labels:
+        app: druid
+        component: router        
+    spec:
+      containers:
+        - name: druid
+          image: "apache/druid:0.17.0"
+          imagePullPolicy: IfNotPresent
+          args: [ "router" ]
+          env:
+          - name: druid_zk_service_host
+            value: druid-zookeeper-headless
+          - name: JAVA_OPTS
+            value: -Xms2G -Xmx2G -XX:MaxDirectMemorySize=8g
+          ports:
+            - name: http
+              containerPort: 8888
+              protocol: TCP
+          resources:
+            {}

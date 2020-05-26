@@ -1,0 +1,60 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: druid-zookeeper
+  namespace: druid
+  labels:
+    app: zookeeper
+    component: server
+spec:
+  serviceName: druid-zookeeper-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zookeeper
+      component: server
+  updateStrategy:
+    type: OnDelete
+    
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+        component: server
+    spec:
+      terminationGracePeriodSeconds: 1800
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+
+        - name: zookeeper
+          image: "zookeeper:3.5"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: client
+              containerPort: 2181
+              protocol: TCP
+            - name: election
+              containerPort: 3888
+              protocol: TCP
+            - name: server
+              containerPort: 2888
+              protocol: TCP
+          env:
+            - name: ZOO_MY_ID
+              value: "1"
+          resources:
+            {}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/zookeeper
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "5Gi"

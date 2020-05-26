@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kafka-producer
+  name: kafka-producer
+  namespace: kafka
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: kafka-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-producer
+    spec:
+      containers:
+        - image: eu.gcr.io/test-sa-ki-witt/kafka-producer:latest
+          name: kafka-producer
+          imagePullPolicy: Always
+          resources:        
+            requests:
+              cpu: "128m"
+              memory: "1Gi"
+            limits:
+              cpu: "512m"
+              memory: "2Gi"

@@ -1,0 +1,51 @@
+apiVersion: kafka.strimzi.io/v1beta1
+kind: KafkaUser
+metadata:
+  name: lena-test
+  namespace: kafka
+  labels:
+    strimzi.io/cluster: kafka-cluster
+spec:
+  authentication:
+    type: tls
+  authorization:
+    type: simple
+    acls:
+      # Example consumer Acls for topic lena-test suing consumer group nitro-group
+      - resource:
+          type: topic
+          name: lena-test
+          patternType: literal
+        operation: Read
+        host: "*"
+      - resource:
+          type: topic
+          name: lena-test
+          patternType: literal
+        operation: Describe
+        host: "*"
+      - resource:
+          type: group
+          name: nitro-group
+          patternType: literal
+        operation: Read
+        host: "*"
+      # Example Producer Acls for topic lena-test
+      - resource:
+          type: topic
+          name: lena-test
+          patternType: literal
+        operation: Write
+        host: "*"
+      - resource:
+          type: topic
+          name: lena-test
+          patternType: literal
+        operation: Create
+        host: "*"
+      - resource:
+          type: topic
+          name: lena-test
+          patternType: literal
+        operation: Describe
+        host: "*"

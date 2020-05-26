@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: druid-coordinator
+  namespace: druid
+  labels:
+    app: druid
+    component: coordinator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: druid
+      component: coordinator
+  template:
+    metadata:
+      labels:
+        app: druid
+        component: coordinator 
+    spec:
+      containers:
+        - name: druid
+          image: "apache/druid:0.17.0"
+          imagePullPolicy: IfNotPresent
+          args: [ "coordinator" ]
+          env:
+          - name: druid_zk_service_host
+            value: druid-zookeeper-headless
+          - name: DRUID_XMX
+            value: 1g
+          - name: DRUID_XMS
+            value: 1g
+          - name: DRUID_MAXNEWSIZE
+            value: 250m
+          - name: DRUID_NEWSIZE
+            value: 250m
+          - name: DRUID_MAXDIRECTMEMORYSIZE
+            value: 6172m
+          - name: JAVA_OPTS
+            value: -Xms1G -Xmx1G
+          - name: DRUID_USE_CONTAINER_IP
+            value: "true"
+          ports:
+            - name: http
+              containerPort: 8081
+              protocol: TCP
+          resources:
+            {}

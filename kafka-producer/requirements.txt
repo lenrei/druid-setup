@@ -1,3 +1,5 @@
 confluent-kafka
 faker
 arrow
+geopy
+barnum

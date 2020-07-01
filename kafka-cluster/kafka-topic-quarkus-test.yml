@@ -1,12 +1,12 @@
 apiVersion: kafka.strimzi.io/v1beta1
 kind: KafkaTopic
 metadata:
-  name: lena-test
+  name: quarkus-test
   namespace: kafka
   labels:
     strimzi.io/cluster: kafka-cluster
 spec:
-  partitions: 50
+  partitions: 100
   replicas: 3
   replication.factor: 3
   config:

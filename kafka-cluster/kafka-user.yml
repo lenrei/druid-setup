@@ -1,7 +1,7 @@
 apiVersion: kafka.strimzi.io/v1beta1
 kind: KafkaUser
 metadata:
-  name: lena-test
+  name: user-test
   namespace: kafka
   labels:
     strimzi.io/cluster: kafka-cluster
@@ -14,38 +14,38 @@ spec:
       # Example consumer Acls for topic lena-test suing consumer group nitro-group
       - resource:
           type: topic
-          name: lena-test
+          name: quarkus-test
           patternType: literal
         operation: Read
         host: "*"
       - resource:
           type: topic
-          name: lena-test
+          name: quarkus-test
           patternType: literal
         operation: Describe
         host: "*"
       - resource:
           type: group
-          name: nitro-group
+          name: quarkus-group
           patternType: literal
         operation: Read
         host: "*"
-      # Example Producer Acls for topic lena-test
+      # Example Producer Acls for topic quarkus-test
       - resource:
           type: topic
-          name: lena-test
+          name: quarkus-test
           patternType: literal
         operation: Write
         host: "*"
       - resource:
           type: topic
-          name: lena-test
+          name: quarkus-test
           patternType: literal
         operation: Create
         host: "*"
       - resource:
           type: topic
-          name: lena-test
+          name: quarkus-test
           patternType: literal
         operation: Describe
         host: "*"

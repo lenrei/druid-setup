@@ -6,7 +6,7 @@ metadata:
 spec:
   kafka:
     version: 2.5.0
-    replicas: 3
+    replicas: 2
     listeners:
       plain: {}
       tls: {}

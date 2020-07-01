@@ -10,6 +10,6 @@ spec:
   ports:
   - name: mysql
     port: 3306
-    targetPort: mysql
+    targetPort: 3306
   selector:
     app: druid-mysql

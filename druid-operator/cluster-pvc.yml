@@ -4,7 +4,7 @@ metadata:
   name: druid-cluster
   namespace: druid-operator
 spec:
-  image: eu.gcr.io/test-sa-ki-witt/druid-incubator-mysql:0.16.0-incubating
+  image: apache/incubator-druid:0.16.0-incubating
   # Optionally specify image for all nodes. Can be specify on nodes also
   # imagePullSecrets:
   # - name: tutu
@@ -47,10 +47,16 @@ spec:
     druid.zk.service.compress=false
 
     # Metadata Store
-    druid.metadata.storage.type=mysql
-    druid.metadata.storage.connector.connectURI=jdbc:mysql://druid-mysql.druid.svc.cluster.local:3306/druid
-    druid.metadata.storage.connector.user=druid
-    druid.metadata.storage.connector.password=druid
+    # druid.metadata.storage.type=mysql
+    # druid.metadata.storage.connector.connectURI=jdbc:mysql://druid-mysql.druid:3306/druid
+    # druid.metadata.storage.connector.user=root
+    # druid.metadata.storage.connector.password=drudroot
+    # druid.metadata.storage.connector.createTables=true
+    druid.metadata.storage.type=derby
+    druid.metadata.storage.type=derby
+    druid.metadata.storage.connector.connectURI=jdbc:derby://localhost:1527/var/druid/metadata.db;create=true
+    druid.metadata.storage.connector.host=localhost
+    druid.metadata.storage.connector.port=1527
     druid.metadata.storage.connector.createTables=true
 
     # Deep Storage
@@ -60,7 +66,7 @@ spec:
     #
     # Extensions
     #
-    druid.extensions.loadList=["druid-kafka-indexing-service", "mysql-metadata-storage"]
+    druid.extensions.loadList=["druid-kafka-indexing-service"]
 
     #
     # Service discovery
@@ -94,9 +100,14 @@ spec:
       volumeMounts:
         - mountPath: /druid/data
           name: data-volume
+        - mountPath: /var/druid
+          name: metadata-volume
       volumes:
       - name: data-volume
         emptyDir: {}
+      - name: metadata-volume
+        persistentVolumeClaim:
+              claimName: druid-broker-pvc
       resources:
         requests:
           memory: "2G"
@@ -169,11 +180,14 @@ spec:
       volumeMounts:
         - mountPath: /druid/data
           name: data-volume
+        - mountPath: /var/druid
+          name: metadata-volume
       volumes:
-        - name: data-volume
-          emptyDir: {}
-          # persistentVolumeClaim:
-          #     claimName: druid-coordinator-pvc
+      - name: data-volume
+        emptyDir: {}
+      - name: metadata-volume
+        persistentVolumeClaim:
+              claimName: druid-coordinator-pvc
       resources:
         requests:
           memory: "2G"
